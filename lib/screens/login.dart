@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nutri_app/screens/consultation.dart';
-import 'package:nutri_app/screens/credits.dart';
-import 'package:nutri_app/screens/home.dart';
-import 'package:nutri_app/screens/registration.dart';
-import 'package:nutri_app/screens/share.dart';
+import '../routes/routes.dart';
 
 class NutriApp extends StatelessWidget {
   const NutriApp({super.key});
@@ -33,13 +29,7 @@ class NutriApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: const Login(title: 'Nutri App'),
-        routes: {
-          '/consultation': (context) => const Consultation(),
-          '/credits': (context) => const Credits(),
-          '/home': (context) => const Home(),
-          '/registration': (context) => const Registration(),
-          '/share': (context) => const Share(),
-        });
+        routes: Rotas.carregar());
   }
 }
 
@@ -121,7 +111,7 @@ class _LoginState extends State<Login> {
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/consultation');
+                        Rotas.call(context, '/home')();
                         /*if (_formKey.currentState!.validate()) {
                             final data =
                                 await SQLHelper.getItem(_emailController.text);
@@ -159,31 +149,7 @@ class _LoginState extends State<Login> {
                           }*/
                       },
                       child: const Text('Entrar'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/credits');
-                      },
-                      child: const Text('Entrar'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/home');
-                      },
-                      child: const Text('Entrar'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/registration');
-                      },
-                      child: const Text('Entrar'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/share');
-                      },
-                      child: const Text('Entrar'),
-                    ),
+                    )
                   ],
                 )),
               ),

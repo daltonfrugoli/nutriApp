@@ -13,7 +13,11 @@ class Credits extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Credits', style: TextStyle(fontSize: 50)),
+            Text('Nutri app foi desenvolvido por: ',
+                style: TextStyle(fontSize: 50)),
+            Text('Dalton Frugoli Fernandes Almeida'),
+            Text('Lucas Barbosa'),
+            Text('Thiago Barreto')
           ],
         ),
       ),

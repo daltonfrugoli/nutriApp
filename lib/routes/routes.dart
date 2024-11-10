@@ -6,7 +6,6 @@ import 'package:nutri_app/screens/new_food.dart';
 import 'package:nutri_app/screens/new_menu.dart';
 import 'package:nutri_app/screens/new_user.dart';
 import 'package:nutri_app/screens/registration.dart';
-import 'package:nutri_app/screens/share.dart';
 
 class Rotas {
   static Map<String, Widget Function(BuildContext)> carregar() {
@@ -15,7 +14,6 @@ class Rotas {
       '/credits': (context) => const Credits(),
       '/home': (context) => const Home(),
       '/registration': (context) => const Registration(),
-      '/share': (context) => const Share(),
       '/new_user': (context) => const NewUser(),
       '/new_food': (context) => const NewFood(),
       '/new_menu': (context) => const NewMenu(),

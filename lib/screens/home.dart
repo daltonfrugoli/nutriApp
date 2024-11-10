@@ -46,11 +46,6 @@ class Home extends StatelessWidget {
               children: [
                 ElevatedButton(
                     onPressed: () {
-                      Rotas.call(context, '/share')();
-                    },
-                    child: const Text('Share')),
-                ElevatedButton(
-                    onPressed: () {
                       Rotas.call(context, '/credits')();
                     },
                     child: const Text('Credits'))

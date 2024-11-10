@@ -1,40 +1,8 @@
 import 'package:flutter/material.dart';
 import '../routes/routes.dart';
 
-class NutriApp extends StatelessWidget {
-  const NutriApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Nutri App',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // TRY THIS: Try running your application with "flutter run". You'll see
-          // the application has a purple toolbar. Then, without quitting the app,
-          // try changing the seedColor in the colorScheme below to Colors.green
-          // and then invoke "hot reload" (save your changes or press the "hot
-          // reload" button in a Flutter-supported IDE, or press "r" if you used
-          // the command line to start the app).
-          //
-          // Notice that the counter didn't reset back to zero; the application
-          // state is not lost during the reload. To reset the state, use hot
-          // restart instead.
-          //
-          // This works for code too, not just values: Most code changes can be
-          // tested with just a hot reload.
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const Login(title: 'Nutri App'),
-        routes: Rotas.carregar());
-  }
-}
-
 class Login extends StatefulWidget {
-  const Login({super.key, required this.title});
+  const Login({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,9 +12,6 @@ class Login extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
-  final String title;
-
   @override
   State<Login> createState() => _LoginState();
 }
@@ -61,7 +26,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Nutri App'),
       ),
       body: Form(
         key: _formKey,
@@ -166,12 +131,7 @@ class _LoginState extends State<Login> {
                       ),
                       InkWell(
                         onTap: () {
-                          // Ação ao clicar na palavra "aqui"
-                          /*Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const NewUser()),
-                          );*/
+                          Rotas.call(context, '/new_account')();
                         },
                         child: const Text(
                           'aqui', // Parte do texto clicável

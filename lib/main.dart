@@ -32,7 +32,7 @@ class NutriApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/welcome',
       routes: Rotas.carregar(),
     );
   }

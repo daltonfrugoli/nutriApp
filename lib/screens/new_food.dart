@@ -1,8 +1,7 @@
 import 'dart:io';
-
+import "../sql_helper.dart";
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../routes/routes.dart';
 import '../model/food_registration.dart';
 
 class NewFood extends StatefulWidget {
@@ -18,15 +17,18 @@ class NewFoodState extends State<NewFood> {
   final TextEditingController _name = TextEditingController();
   FoodCategory? _selectedFoodCategory;
   FoodType? _selectedFoodType;
+  Map<String, dynamic>? accountLog;
 
   // componentes para seleção de imagem
   File? _selectedImage;
+  String? _selectedImagePath;
 
   Future _pickImageFromGallery() async {
     final returnedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (returnedImage == null) return;
+    _selectedImagePath = returnedImage.path;
     setState(() {
       _selectedImage = File(returnedImage.path);
     });
@@ -37,26 +39,51 @@ class NewFoodState extends State<NewFood> {
         await ImagePicker().pickImage(source: ImageSource.camera);
 
     if (returnedImage == null) return;
+    _selectedImagePath = returnedImage.path;
     setState(() {
       _selectedImage = File(returnedImage.path);
     });
   }
 
+  Future<void> _createFood(account) async {
+    if (_formKey.currentState!.validate() && _selectedImagePath != null && _selectedFoodCategory != null && _selectedFoodType != null){
+      await SQLHelper.createFood(_name.text, _selectedFoodCategory!.title, _selectedFoodType!.title, _selectedImagePath!, account);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Food register successfully created!')),
+      );
+    } else {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Fill in all the fields!')),
+      );
+    }
+  }
+
+  Future<void> _getLogged() async {
+    final logged = await SQLHelper.getLoggedAccount();
+    accountLog = logged.elementAt(0);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getLogged();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("NewFood"),
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(
                 height: 20,
               ),
               _selectedImage != null
@@ -86,108 +113,85 @@ class NewFoodState extends State<NewFood> {
                       ),
                     ],
                   )),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: TextFormField(
-                  controller: _name,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: "Food name"),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the food name';
-                    }
-                    return null;
-                  },
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                      child: TextFormField(
+                        controller: _name,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(), labelText: "Food name"),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the food name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: DropdownButtonFormField(
+                          value: _selectedFoodCategory,
+                          decoration:
+                              const InputDecoration(label: Text('FoodCategory')),
+                          items: FoodCategory.values.map((category) {
+                            return DropdownMenuItem(
+                                value: category, child: Text(category.title));
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedFoodCategory = value!;
+                            });
+                          },
+                        )),
+                    Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: DropdownButtonFormField(
+                          value: _selectedFoodType,
+                          decoration:
+                              const InputDecoration(label: Text('FoodCategory')),
+                          items: FoodType.values.map((type) {
+                            return DropdownMenuItem(
+                                value: type, child: Text(type.title));
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedFoodType = value!;
+                            });
+                          },
+                        )),
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
+                      child: Center(
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: () {
+                              _createFood(accountLog!['id']);
+                            },
+                            child: const Text('Sign up'),
+                          ),
+                          
+                        ],
+                      )),
+                    ),
+                  ],
                 ),
               ),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedFoodCategory,
-                    decoration:
-                        const InputDecoration(label: Text('FoodCategory')),
-                    items: FoodCategory.values.map((category) {
-                      return DropdownMenuItem(
-                          value: category, child: Text(category.title));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedFoodCategory = value!;
-                      });
-                    },
-                  )),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedFoodType,
-                    decoration:
-                        const InputDecoration(label: Text('FoodCategory')),
-                    items: FoodType.values.map((type) {
-                      return DropdownMenuItem(
-                          value: type, child: Text(type.title));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedFoodType = value!;
-                      });
-                    },
-                  )),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
-                child: Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        Rotas.call(context, '/home')();
-                        /*if (_formKey.currentState!.validate()) {
-                            final data =
-                                await SQLHelper.getItem(_emailController.text);
-                            print(data);
-
-                            if (data.isNotEmpty) {
-                              if (_emailController.text == data[0]['email'] &&
-                                  _passwordController.text == data[0]['password']) {
-                                if (context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage(
-                                              email: _emailController.text,
-                                            )),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Credenciais Inválidas')),
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Email não cadastrado!')),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Preencha as informações')),
-                            );
-                          }*/
-                      },
-                      child: const Text('Sign up'),
-                    )
-                  ],
-                )),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

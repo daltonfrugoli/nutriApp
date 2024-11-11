@@ -6,6 +6,7 @@ class Registration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Registration"),
@@ -16,7 +17,7 @@ class Registration extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                Rotas.call(context, '/new_user')();
+                Rotas.pushNamed(context, '/new_user');
               },
               child: const ListTile(
                 title: Text('User'),
@@ -26,7 +27,7 @@ class Registration extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Rotas.call(context, '/new_food')();
+                Rotas.pushNamed(context, '/new_food');
               },
               child: const ListTile(
                 title: Text('Food'),
@@ -36,7 +37,7 @@ class Registration extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Rotas.call(context, '/new_menu')();
+                Rotas.pushNamed(context, '/new_menu');
               },
               child: const ListTile(
                 title: Text('Menu'),

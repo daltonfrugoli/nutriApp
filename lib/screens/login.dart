@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../routes/routes.dart';
 import "../sql_helper.dart";
+import 'package:flutter/services.dart';
 
 // Dependencias de criptografia
 import 'package:crypto/crypto.dart';
@@ -42,6 +43,12 @@ class _LoginState extends State<Login> {
     _usuario = data;
   }
 
+  Future<void> _goToHome(account) async {
+    await SQLHelper.setLoggedAccount(account);
+    Rotas.pushNamed(context, '/home', account);
+    print(account);
+  }
+
   // Função chamada para realizar o processo de login
   void _login() {
     if (_formKey.currentState!.validate()) {
@@ -57,8 +64,7 @@ class _LoginState extends State<Login> {
           var user = registro.elementAt(0);
           if (_emailController.text == user['email'] &&
               passwordHash == user['hash_password']) {
-                Rotas.pushNamed(context, '/home', user);
-                print(user);
+                _goToHome(user);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Credenciais Inválidas')),
@@ -79,126 +85,134 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nutri App'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: "Email"),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Preencha o email';
-                    }
-                    return null;
-                  },
+    return WillPopScope(
+      onWillPop: () async {
+        // Fechar o aplicativo ao pressionar o botão de voltar
+        SystemNavigator.pop();
+        return false; // Impede o comportamento de voltar padrão
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Nutri App'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                  child: TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: "Email"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Preencha o email';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: "Password"),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Preencha a senha';
-                    }
-                    return null;
-                  },
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: "Password"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Preencha a senha';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
-                child: Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: _login,
-                        /*if (_formKey.currentState!.validate()) {
-                            final data =
-                                await SQLHelper.getItem(_emailController.text);
-                            print(data);
-
-                            if (data.isNotEmpty) {
-                              if (_emailController.text == data[0]['email'] &&
-                                  _passwordController.text == data[0]['password']) {
-                                if (context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage(
-                                              email: _emailController.text,
-                                            )),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
+                  child: Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: _login,
+                          /*if (_formKey.currentState!.validate()) {
+                              final data =
+                                  await SQLHelper.getItem(_emailController.text);
+                              print(data);
+      
+                              if (data.isNotEmpty) {
+                                if (_emailController.text == data[0]['email'] &&
+                                    _passwordController.text == data[0]['password']) {
+                                  if (context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => HomePage(
+                                                email: _emailController.text,
+                                              )),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Credenciais Inválidas')),
                                   );
                                 }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                      content: Text('Credenciais Inválidas')),
+                                      content: Text('Email não cadastrado!')),
                                 );
                               }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Email não cadastrado!')),
+                                    content: Text('Preencha as informações')),
                               );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Preencha as informações')),
-                            );
-                          }*/
-                      child: const Text('Entrar'),
-                    )
-                  ],
-                )),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Não tem uma conta? Cadastre-se ', // Parte do texto normal
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Rotas.call(context, '/new_account')();
-                        },
-                        child: const Text(
-                          'aqui', // Parte do texto clicável
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 18,
+                            }*/
+                        child: const Text('Entrar'),
+                      )
+                    ],
+                  )),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Não tem uma conta? Cadastre-se ', // Parte do texto normal
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Rotas.call(context, '/new_account')();
+                          },
+                          child: const Text(
+                            'aqui', // Parte do texto clicável
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

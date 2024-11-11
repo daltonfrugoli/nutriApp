@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../model/consultation_models.dart';
 import '../widgets/dynamic_consultation.dart';
+import "../sql_helper.dart";
 
 class Consultation extends StatefulWidget {
   const Consultation({super.key});
@@ -12,23 +13,15 @@ class Consultation extends StatefulWidget {
 class ConsultationState extends State<Consultation> {
   Categories? _selectedCategory;
 
-  final List<Map<String, dynamic>> _allUsers = [
-    {'id': '1', 'name': 'Dalton Frugoli', 'birth': '21-07-2001'},
-    {'id': '2', 'name': 'Lucas Barbosa', 'birth': '08-05-2005'},
-    {'id': '3', 'name': 'Thiago Barreto', 'birth': '14-08-1996'}
-  ];
+  List<Map<String, dynamic>> _allUsers = [];
+  List<Map<String, dynamic>> _allFoods = [];
+  List<Map<String, dynamic>> _allMenu = [];
 
-  final List<Map<String, dynamic>> _allFoods = [
-    {'id': '1', 'name': 'Grape', 'birth': 'food'},
-    {'id': '2', 'name': 'Chicken', 'birth': 'food'},
-    {'id': '3', 'name': 'Rice', 'birth': 'food'}
-  ];
-
-  final List<Map<String, dynamic>> _allMenus = [
+  /*final List<Map<String, dynamic>> _allMenu = [
     {'id': '1', 'name': 'Dalton Frugoli', 'birth': 'menu'},
     {'id': '2', 'name': 'Lucas Barbosa', 'birth': 'menu'},
     {'id': '3', 'name': 'Thiago Barreto', 'birth': 'menu'}
-  ];
+  ];*/
 
   List<Map<String, dynamic>> _foundItems = [];
 
@@ -40,7 +33,7 @@ class ConsultationState extends State<Consultation> {
       } else if (_selectedCategory!.title == 'food') {
         results = _allFoods;
       } else {
-        results = _allMenus;
+        results = _allMenu;
       }
     } else {
       if (_selectedCategory!.title == 'user') {
@@ -56,7 +49,7 @@ class ConsultationState extends State<Consultation> {
                 .contains(enteredKeyword.toLowerCase()))
             .toList();
       } else {
-        results = _allMenus
+        results = _allMenu
             .where((item) => item['name']
                 .toLowerCase()
                 .contains(enteredKeyword.toLowerCase()))
@@ -98,6 +91,25 @@ class ConsultationState extends State<Consultation> {
             ));
   }
 
+  void _refreshItems() async {
+    final logged = await SQLHelper.getLoggedAccount();
+    final accountLog = logged.elementAt(0);
+    final userData = await SQLHelper.getUser(accountLog['id']);
+    final foodData = await SQLHelper.getFood(accountLog['id']);
+    final menuData = await SQLHelper.getMenu(accountLog['id']);
+    setState(() {
+      _allUsers = userData;
+      _allFoods = foodData;
+      _allMenu = menuData;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshItems(); // Loading the diary when the app starts
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +135,7 @@ class ConsultationState extends State<Consultation> {
                   _selectedCategory = value!;
                   if (value.title == 'user') _foundItems = _allUsers;
                   if (value.title == 'food') _foundItems = _allFoods;
-                  if (value.title == 'menu') _foundItems = _allMenus;
+                  if (value.title == 'menu') _foundItems = _allMenu;
                 });
               },
             ),
@@ -156,7 +168,7 @@ class ConsultationState extends State<Consultation> {
                                       _selectedCategory!.title,
                                       _foundItems[index]),
                                   child: ListTile(
-                                    leading: Text(_foundItems[index]['id'],
+                                    leading: Text('${index + 1}',
                                         style: const TextStyle(fontSize: 24)),
                                     title: Text(
                                       _foundItems[index]['name'],
@@ -191,7 +203,7 @@ class ConsultationState extends State<Consultation> {
                                 child: ListView.builder(
                                   itemCount: _foundItems.length,
                                   itemBuilder: (context, index) => Card(
-                                    key: ValueKey(_foundItems[index]['id']),
+                                    key: ValueKey(_foundItems[index]['name']),
                                     elevation: 4,
                                     margin:
                                         const EdgeInsets.symmetric(vertical: 4),
@@ -200,18 +212,9 @@ class ConsultationState extends State<Consultation> {
                                           _selectedCategory!.title,
                                           _foundItems[index]),
                                       child: ListTile(
-                                        leading: Text(_foundItems[index]['id'],
-                                            style: const TextStyle(
-                                                fontSize: 24,
-                                                color: Colors.white)),
-                                        title: Text(_foundItems[index]['name'],
-                                            style: const TextStyle(
-                                                color: Colors.white)),
-                                        subtitle: Text(
-                                          _foundItems[index]['birth'],
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
+                                        leading: Text('${index + 1}', style: const TextStyle(fontSize: 24)),
+                                        title: Text(_foundItems[index]['name']),
+                                        subtitle: Text(_foundItems[index]['category']),
                                       ),
                                     ),
                                   ),
@@ -239,7 +242,7 @@ class ConsultationState extends State<Consultation> {
                                     child: ListView.builder(
                                       itemCount: _foundItems.length,
                                       itemBuilder: (context, index) => Card(
-                                        key: ValueKey(_foundItems[index]['id']),
+                                        key: ValueKey(_foundItems[index]['usuario_id']),
                                         elevation: 4,
                                         margin: const EdgeInsets.symmetric(
                                             vertical: 4),
@@ -249,19 +252,9 @@ class ConsultationState extends State<Consultation> {
                                               _foundItems[index]),
                                           child: ListTile(
                                             leading: Text(
-                                                _foundItems[index]['id'],
+                                                _foundItems[index]['user_name'],
                                                 style: const TextStyle(
-                                                    fontSize: 24,
-                                                    color: Colors.white)),
-                                            title: Text(
-                                                _foundItems[index]['name'],
-                                                style: const TextStyle(
-                                                    color: Colors.white)),
-                                            subtitle: Text(
-                                              _foundItems[index]['birth'],
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
+                                                    fontSize: 24 ))
                                           ),
                                         ),
                                       ),

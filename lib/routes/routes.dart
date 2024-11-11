@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/welcome.dart';
 import '../screens/consultation.dart';
 import '../screens/login.dart';
 import '../screens/credits.dart';
@@ -12,6 +13,7 @@ import '../screens/new_menu.dart';
 class Rotas {
   static Map<String, Widget Function(BuildContext)> carregar() {
     return {
+      '/welcome': (context) => const Welcome(),
       '/login': (context) => const Login(),
       '/consultation': (context) => const Consultation(),
       '/credits': (context) => const Credits(),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../routes/routes.dart';
-import '../model/menu_registration.dart';
+import "../sql_helper.dart";
 
 class NewMenu extends StatefulWidget {
   const NewMenu({super.key});
@@ -10,78 +9,168 @@ class NewMenu extends StatefulWidget {
 }
 
 class NewMenuState extends State<NewMenu> {
-  // controladores do formulario
-  final _formKey = GlobalKey<FormState>();
-  UserTest? _selectedUser;
-  FoodOptions? _selectedBreakfast;
-  FoodOptions? _selectedLunch;
-  FoodOptions? _selectedDinner;
-  List<FoodOptions>? _breakfastOptions;
-  List<FoodOptions>? _lunchOptions;
-  List<FoodOptions>? _dinnerOptions;
 
-  // adiciona um novo café da manhã às opções
-  void _addBreakfastOption(String foodCategory, FoodOptions food) {
-    switch (foodCategory) {
-      case 'breakfast':
-        _breakfastOptions ??= [];
-        _breakfastOptions!.add(food);
-        setState(() {
-          _breakfastOptions;
-        });
-        break;
+  Map<String, dynamic>? accountLog;
 
-      case 'lunch':
-        _lunchOptions ??= [];
-        _lunchOptions!.add(food);
-        setState(() {
-          _lunchOptions;
-        });
-        break;
+  // Opções que podem ser selecionadas
+  List<Map<String, dynamic>> _userList = [];
+  List<Map<String, dynamic>> _breakfastList = [];
+  List<Map<String, dynamic>> _lunchList = [];
+  List<Map<String, dynamic>> _dinnerList = [];
+  final List<bool> _userChecked = [];
+  final List<bool> _breakfastChecked = [];
+  final List<bool> _lunchChecked = [];
+  final List<bool> _dinnerChecked = [];
 
-      case 'dinner':
-        _dinnerOptions ??= [];
-        _dinnerOptions!.add(food);
-        setState(() {
-          _dinnerOptions;
-        });
-        break;
+  // Opçoes selecionadas para o usuario
+  Map<String, dynamic>? _userSelected;
+  final List<Map<String, dynamic>> _breakfastOptions = [];
+  final List<Map<String, dynamic>> _lunchOptions = [];
+  final List<Map<String, dynamic>> _dinnerOptions = [];
+
+  void _refreshMenus() async {
+    final logged = await SQLHelper.getLoggedAccount();
+    final accountLog = logged.elementAt(0);
+    final userData = await SQLHelper.getUser(accountLog['id']);
+    final breakfastData = await SQLHelper.getBreakfast(accountLog['id']);
+    final lunchData = await SQLHelper.getLunch(accountLog['id']);
+    final dinnerData = await SQLHelper.getDinner(accountLog['id']);
+
+    _breakfastList = breakfastData;
+    _userList = userData;
+    _lunchList = lunchData;
+    _dinnerList = dinnerData;
+    
+    for (int i = 0; i < _breakfastList.length; i++){
+      _breakfastChecked.add(false);
     }
+
+    for (int i = 0; i < _lunchList.length; i++){
+      _lunchChecked.add(false);
+    }
+
+    for (int i = 0; i < _dinnerList.length; i++){
+      _dinnerChecked.add(false);
+    }
+
+    for (int i = 0; i < _userList.length; i++){
+      _userChecked.add(false);
+    }
+
+
+    setState(() {
+      _breakfastList;
+      _userList;
+      _lunchList;
+      _dinnerList;
+    });
   }
 
-  // remove uma opção de café da manhã
-  void _removeBreakfastOption(int index, String foodCategory) {
-    switch (foodCategory) {
-      case 'breakfast':
-        if (_breakfastOptions != null &&
-            index >= 0 &&
-            index < _breakfastOptions!.length) {
-          _breakfastOptions!.removeAt(index); // Remove o item pelo índice
-          setState(() {
-            _breakfastOptions;
-          }); // Atualiza a interface
-        }
+  Future<void> _getLogged() async {
+    final logged = await SQLHelper.getLoggedAccount();
+    accountLog = logged.elementAt(0);
+  }
 
-      case 'lunch':
-        if (_lunchOptions != null &&
-            index >= 0 &&
-            index < _lunchOptions!.length) {
-          _lunchOptions!.removeAt(index); // Remove o item pelo índice
-          setState(() {
-            _lunchOptions;
-          }); // Atualiza a interface
-        }
+  @override
+  void initState() {
+    super.initState();
+    _refreshMenus();
+    _getLogged(); // Loading the diary when the app starts
+  }
 
-      case 'dinner':
-        if (_dinnerOptions != null &&
-            index >= 0 &&
-            index < _dinnerOptions!.length) {
-          _dinnerOptions!.removeAt(index); // Remove o item pelo índice
-          setState(() {
-            _dinnerOptions;
-          }); // Atualiza a interface
-        }
+  void _updateUserSelection(int index, bool value) {
+    setState(() {
+      
+      if (value && _userSelected == null) {
+        // Adiciona o item ao array "selecionados"
+        _userSelected = _userList[index];
+        _userChecked[index] = value;
+      } else if (!value){
+        // Remove o item do array "selecionados"
+        _userSelected = null;
+        _userChecked[index] = value;
+      }
+    });
+  }
+
+  void _updateBreakfastSelection(int index, bool value) {
+    setState(() {
+      
+      if (value && _breakfastOptions.length < 3) {
+        // Adiciona o item ao array "selecionados"
+        _breakfastOptions.add(_breakfastList[index]);
+        _breakfastChecked[index] = value;
+      } else if (!value){
+        // Remove o item do array "selecionados"
+        _breakfastOptions.removeWhere((item) => item['name'] == _breakfastList[index]['name']);
+        _breakfastChecked[index] = value;
+      }
+    });
+  }
+
+  void _updateLunchSelection(int index, bool value) {
+    setState(() {
+      
+      if (value && _lunchOptions.length < 5) {
+        // Adiciona o item ao array "selecionados"
+        _lunchOptions.add(_lunchList[index]);
+        _lunchChecked[index] = value;
+      } else if (!value){
+        // Remove o item do array "selecionados"
+        _lunchOptions.removeWhere((item) => item['name'] == _lunchList[index]['name']);
+        _lunchChecked[index] = value;
+      }
+    });
+  }
+
+  void _updateDinnerSelection(int index, bool value) {
+    setState(() {
+      
+      if (value && _dinnerOptions.length < 4) {
+        // Adiciona o item ao array "selecionados"
+        _dinnerOptions.add(_dinnerList[index]);
+        _dinnerChecked[index] = value;
+      } else if (!value){
+        // Remove o item do array "selecionados"
+        _dinnerOptions.removeWhere((item) => item['name'] == _dinnerList[index]['name']);
+        _dinnerChecked[index] = value;
+      }
+    });
+  }
+
+  Future<void> _saveMenu() async {
+    if(_userSelected != null && _breakfastOptions.length == 3 && _lunchOptions.length == 5 && _dinnerOptions.length == 4){
+      await SQLHelper.createMenu(
+        _userSelected!['name'], 
+        _breakfastOptions[0]['name'], 
+        _breakfastOptions[1]['name'], 
+        _breakfastOptions[2]['name'], 
+        _lunchOptions[0]['name'], 
+        _lunchOptions[1]['name'], 
+        _lunchOptions[2]['name'], 
+        _lunchOptions[3]['name'], 
+        _lunchOptions[4]['name'], 
+        _dinnerOptions[0]['name'], 
+        _dinnerOptions[1]['name'], 
+        _dinnerOptions[2]['name'], 
+        _dinnerOptions[3]['name'], 
+        accountLog!['id']
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Menu register successfully created!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Fill in all the fields!')),
+      );
     }
+
+
   }
 
   @override
@@ -90,194 +179,86 @@ class NewMenuState extends State<NewMenu> {
       appBar: AppBar(
         title: const Text("NewMenu"),
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      body:
+        SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedUser,
-                    decoration: const InputDecoration(label: Text('User')),
-                    items: UserTest.values.map((user) {
-                      return DropdownMenuItem(
-                          value: user, child: Text(user.name));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedUser = value!;
-                      });
+          children: [
+            // Mostra os itens selecionados
+            const Text('Select the user:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+              primary: false,
+              itemCount: _userList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_userList[index]['name']),
+                  trailing: Checkbox(
+                    value: _userChecked[index], // Usa a lista 'checked' para o estado
+                    onChanged: (bool? value) {
+                      _updateUserSelection(index, value!);
                     },
-                  )),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedBreakfast,
-                    decoration:
-                        const InputDecoration(label: Text('Breakfast options')),
-                    items: FoodOptions.values.map((food) {
-                      return DropdownMenuItem(
-                          value: food, child: Text(food.name));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedBreakfast = value!;
-                        _addBreakfastOption('breakfast', value);
-                      });
+                  ),
+                );
+              },
+            ),
+            const Text('Select 3 breakfast options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+              primary: false,
+              itemCount: _breakfastList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_breakfastList[index]['name']),
+                  trailing: Checkbox(
+                    value: _breakfastChecked[index], // Usa a lista 'checked' para o estado
+                    onChanged: (bool? value) {
+                      _updateBreakfastSelection(index, value!);
                     },
-                  )),
-              Column(
-                children: _breakfastOptions == null
-                    ? []
-                    : List.generate(_breakfastOptions!.length, (index) {
-                        return ListTile(
-                          title:
-                              Text(_breakfastOptions![index].name.toString()),
-                          trailing: ElevatedButton(
-                            child: const Icon(
-                              Icons.delete,
-                              size: 30,
-                            ),
-                            onPressed: () {
-                              _removeBreakfastOption(index, 'breakfast');
-                            },
-                          ),
-                        );
-                      }),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedLunch,
-                    decoration:
-                        const InputDecoration(label: Text('Lunch options')),
-                    items: FoodOptions.values.map((food) {
-                      return DropdownMenuItem(
-                          value: food, child: Text(food.name));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLunch = value!;
-                        _addBreakfastOption('lunch', value);
-                      });
+                  ),
+                );
+              },
+            ),
+            const Text('Select 5 lunch options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+              primary: false,
+              itemCount: _lunchList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_lunchList[index]['name']),
+                  trailing: Checkbox(
+                    value: _lunchChecked[index], // Usa a lista 'checked' para o estado
+                    onChanged: (bool? value) {
+                      _updateLunchSelection(index, value!);
                     },
-                  )),
-              Column(
-                children: _lunchOptions == null
-                    ? []
-                    : List.generate(_lunchOptions!.length, (index) {
-                        return ListTile(
-                          title: Text(_lunchOptions![index].name.toString()),
-                          trailing: ElevatedButton(
-                            child: const Icon(
-                              Icons.delete,
-                              size: 30,
-                            ),
-                            onPressed: () {
-                              _removeBreakfastOption(index, 'lunch');
-                            },
-                          ),
-                        );
-                      }),
-              ),
-              Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: DropdownButtonFormField(
-                    value: _selectedDinner,
-                    decoration:
-                        const InputDecoration(label: Text('Dinner options')),
-                    items: FoodOptions.values.map((food) {
-                      return DropdownMenuItem(
-                          value: food, child: Text(food.name));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDinner = value!;
-                        _addBreakfastOption('dinner', value);
-                      });
+                  ),
+                );
+              },
+            ),
+            const Text('Select 4 dinner options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+              primary: false,
+              itemCount: _dinnerList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_dinnerList[index]['name']),
+                  trailing: Checkbox(
+                    value: _dinnerChecked[index], // Usa a lista 'checked' para o estado
+                    onChanged: (bool? value) {
+                      _updateDinnerSelection(index, value!);
                     },
-                  )),
-              Column(
-                children: _dinnerOptions == null
-                    ? []
-                    : List.generate(_dinnerOptions!.length, (index) {
-                        return ListTile(
-                          title: Text(_dinnerOptions![index].name.toString()),
-                          trailing: ElevatedButton(
-                            child: const Icon(
-                              Icons.delete,
-                              size: 30,
-                            ),
-                            onPressed: () {
-                              _removeBreakfastOption(index, 'dinner');
-                            },
-                          ),
-                        );
-                      }),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16.0),
-                child: Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        Rotas.call(context, '/home')();
-                        /*if (_formKey.currentState!.validate()) {
-                            final data =
-                                await SQLHelper.getItem(_emailController.text);
-                            print(data);
-
-                            if (data.isNotEmpty) {
-                              if (_emailController.text == data[0]['email'] &&
-                                  _passwordController.text == data[0]['password']) {
-                                if (context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage(
-                                              email: _emailController.text,
-                                            )),
-                                  );
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Credenciais Inválidas')),
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Email não cadastrado!')),
-                              );
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Preencha as informações')),
-                            );
-                          }*/
-                      },
-                      child: const Text('Sign up'),
-                    )
-                  ],
-                )),
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(onPressed: () {
+              _saveMenu();
+            }, child: const Text('Sing up')),
+            const SizedBox(height: 100,)
+          ],
+                ),
         ),
-      ),
     );
   }
 }

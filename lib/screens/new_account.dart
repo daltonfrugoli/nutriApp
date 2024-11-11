@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import "../sql_helper.dart";
 
+// Dependencias de criptografia
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+
 class NewAccountForm extends StatefulWidget {
   const NewAccountForm({super.key});
 
@@ -13,8 +17,13 @@ class _NewAccountState extends State<NewAccountForm> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+    // Calcula um hash da senha digitada pelo usuário
+  String _hashPassword(String password) {
+    var passwordInBytes = utf8.encode(password);
+    return sha256.convert(passwordInBytes).toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +98,7 @@ class _NewAccountState extends State<NewAccountForm> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final createNewAccount = await SQLHelper.createAccount(
-                            _emailController.text, _passwordController.text);
+                            _emailController.text, _hashPassword(_passwordController.text));
                         if (createNewAccount != -1) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(

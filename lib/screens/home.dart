@@ -6,6 +6,9 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    Map<String, dynamic> accountLog = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -25,19 +28,18 @@ class Home extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text('Welcome back!', style: TextStyle(fontSize: 50)),
-                Text('Usuário fulano', style: TextStyle(fontSize: 50))
               ],
             ),
             Row(
               children: <Widget>[
                 ElevatedButton(
                     onPressed: () {
-                      Rotas.call(context, '/registration')();
+                      Rotas.pushNamed(context, '/registration', accountLog);
                     },
                     child: const Text('Registration')),
                 ElevatedButton(
                     onPressed: () {
-                      Rotas.call(context, '/consultation')();
+                      Rotas.pushNamed(context, '/consultation', accountLog);
                     },
                     child: const Text('Consultation')),
               ],
@@ -46,7 +48,7 @@ class Home extends StatelessWidget {
               children: [
                 ElevatedButton(
                     onPressed: () {
-                      Rotas.call(context, '/credits')();
+                      Rotas.pushNamed(context, '/credits', accountLog);
                     },
                     child: const Text('Credits'))
               ],

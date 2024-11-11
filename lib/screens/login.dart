@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../routes/routes.dart';
+import "../sql_helper.dart";
+
+// Dependencias de criptografia
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,10 +22,60 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final _formKey = GlobalKey<FormState>();
 
+  // Form
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  List<Map<String, dynamic>> _usuario = [];
+
+  // Calcula um hash da senha digitada pelo usuário
+  String _hashPassword(String password) {
+    var passwordInBytes = utf8.encode(password);
+    return sha256.convert(passwordInBytes).toString();
+  }
+
+  // Busca um usuário com base no e-mail no banco de dados
+  Future<void> _fetchAccount(String email) async {
+    final data = await SQLHelper.getAccount(email);
+    _usuario = data;
+  }
+
+  // Função chamada para realizar o processo de login
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      _fetchAccount(_emailController.text).then((success) {
+        // 
+      }).onError((error, stack) {
+        // 
+      }).whenComplete(() {
+        final registro = _usuario
+            .where((element) => element['email'] == _emailController.text);
+        if (registro.isNotEmpty) {
+          String passwordHash = _hashPassword(_passwordController.text);
+          var user = registro.elementAt(0);
+          if (_emailController.text == user['email'] &&
+              passwordHash == user['hash_password']) {
+                Rotas.pushNamed(context, '/home', user);
+                print(user);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Credenciais Inválidas')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Usuário Inexistente')),
+          );
+        }
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha as informações')),
+      );
+    }
+  }  
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +130,7 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     ElevatedButton(
-                      onPressed: () {
-                        Rotas.call(context, '/home')();
+                      onPressed: _login,
                         /*if (_formKey.currentState!.validate()) {
                             final data =
                                 await SQLHelper.getItem(_emailController.text);
@@ -112,7 +166,6 @@ class _LoginState extends State<Login> {
                                   content: Text('Preencha as informações')),
                             );
                           }*/
-                      },
                       child: const Text('Entrar'),
                     )
                   ],

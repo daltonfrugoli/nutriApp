@@ -63,13 +63,40 @@ class SQLHelper {
 // title, description: name and description of your activity
 // created_at: the time that the item was created. It will be automatically handled by SQLite
 
+// Retorna um único registro através do e-mail
+  static Future<List<Map<String, dynamic>>> getAccount(
+      String email) async {
+    final db = await SQLHelper.db();
+    return db.query('accounts',
+        where: "email = ?", whereArgs: [email], limit: 1);
+  }
+
+  // Insere um novo registro
+  static Future<int> createAccount(String email, String senha) async {
+    final db = await SQLHelper.db();
+    final data = {'email': email, 'hash_password': senha};
+
+    try {
+      final id = await db.insert(
+        'accounts',
+        data,
+        conflictAlgorithm: sql.ConflictAlgorithm
+            .fail, // Define o comportamento em caso de conflito
+      );
+      return id; // Sucesso
+    } catch (e) {
+      print('Erro ao inserir item: $e');
+      return -1; // Retorno opcional em caso de erro
+    }
+  }
+
   static String generateHash(String input) {
     var bytes = utf8.encode(input);
     var digest = sha256.convert(bytes);
     return digest.toString();
   }
 
-  static Future<int> createAccount(String email, String? password) async {
+  /*static Future<int> createAccount(String email, String? password) async {
     final db = await SQLHelper.db();
     final data = {'email': email, 'hash_password': generateHash(password!)};
 
@@ -85,7 +112,7 @@ class SQLHelper {
       print('Erro ao inserir item: $e');
       return -1; // Retorno opcional em caso de erro
     }
-  }
+  }*/
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(

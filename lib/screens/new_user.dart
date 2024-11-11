@@ -96,7 +96,14 @@ class NewUserState extends State<NewUser> {
                       height: 50,
                     ),
             _selectedImage != null
-                    ? Image.file(_selectedImage!)
+                    ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: Image.file(_selectedImage!, 
+                          width: 200,   // Largura da imagem
+                          height: 200,
+                          fit: BoxFit.cover,
+                          ),
+                    )
                     : const Text('selecione uma imagem'),
                 Padding(
                     padding:
@@ -178,7 +185,8 @@ class NewUserState extends State<NewUser> {
                               _createUser(accountLog!['id']);
                             },
                             child: const Text('Sign up'),
-                          )
+                          ),
+                          const SizedBox(height: 50)
                         ],
                       )),
                     ),

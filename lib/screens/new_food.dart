@@ -87,7 +87,14 @@ class NewFoodState extends State<NewFood> {
                 height: 20,
               ),
               _selectedImage != null
-                  ? Image.file(_selectedImage!)
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0),
+                      child: Image.file(_selectedImage!, 
+                          width: 200,   // Largura da imagem
+                          height: 200,
+                          fit: BoxFit.cover,
+                          ),
+                    )
                   : const Text('selecione uma imagem'),
               Padding(
                   padding:
@@ -142,7 +149,7 @@ class NewFoodState extends State<NewFood> {
                         child: DropdownButtonFormField(
                           value: _selectedFoodCategory,
                           decoration:
-                              const InputDecoration(label: Text('FoodCategory')),
+                              const InputDecoration(label: Text('Food Category')),
                           items: FoodCategory.values.map((category) {
                             return DropdownMenuItem(
                                 value: category, child: Text(category.title));
@@ -159,7 +166,7 @@ class NewFoodState extends State<NewFood> {
                         child: DropdownButtonFormField(
                           value: _selectedFoodType,
                           decoration:
-                              const InputDecoration(label: Text('FoodCategory')),
+                              const InputDecoration(label: Text('Food type')),
                           items: FoodType.values.map((type) {
                             return DropdownMenuItem(
                                 value: type, child: Text(type.title));
@@ -183,6 +190,7 @@ class NewFoodState extends State<NewFood> {
                             },
                             child: const Text('Sign up'),
                           ),
+                          const SizedBox(height: 50)
                           
                         ],
                       )),

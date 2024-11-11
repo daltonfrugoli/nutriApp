@@ -9,16 +9,23 @@ class Credits extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Credits"),
       ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('Nutri app foi desenvolvido por: ',
-                style: TextStyle(fontSize: 50)),
-            Text('Dalton Frugoli Fernandes Almeida'),
-            Text('Lucas Barbosa'),
-            Text('Thiago Barreto')
-          ],
+      body: const SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('NutriApp', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                Text('foi desenvolvido por: ',
+                    style: TextStyle(fontSize: 30)),
+                    SizedBox(height: 50),
+                Text('- Dalton Frugoli Fernandes Almeida', style: TextStyle(fontSize: 20)),
+                Text('- Lucas Barbosa Nascimento', style: TextStyle(fontSize: 20)),
+                Text('- Thiago Barreto da Costa', style: TextStyle(fontSize: 20))
+              ],
+            ),
+          ),
         ),
       ),
     );

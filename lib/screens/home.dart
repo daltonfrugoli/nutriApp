@@ -24,7 +24,7 @@ class Home extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text("NutriApp"),
+          title: const Text("Welcome!"),
           actions: [
             IconButton(
                 onPressed: () {
@@ -34,38 +34,44 @@ class Home extends StatelessWidget {
           ],
         ),
         body: Center(
-          child: Column(
-            children: [
-              const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text('Welcome back!', style: TextStyle(fontSize: 50)),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  ElevatedButton(
-                      onPressed: () {
-                        Rotas.pushNamed(context, '/registration');
-                      },
-                      child: const Text('Registration')),
-                  ElevatedButton(
-                      onPressed: () {
-                        Rotas.pushNamed(context, '/consultation');
-                      },
-                      child: const Text('Consultation')),
-                ],
-              ),
-              Row(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
                 children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Rotas.pushNamed(context, '/credits');
-                      },
-                      child: const Text('Credits'))
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text('NutriApp', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 50)),
+                    ],
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Rotas.pushNamed(context, '/registration');
+                        },
+                        child: const Text('Registration')),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Rotas.pushNamed(context, '/consultation');
+                        },
+                        child: const Text('Consultation')),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          Rotas.pushNamed(context, '/credits');
+                        },
+                        child: const Text('Credits')),
+                  )
                 ],
-              )
-            ],
+              ),
+            ),
           ),
         ),
       ),

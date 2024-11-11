@@ -181,83 +181,86 @@ class NewMenuState extends State<NewMenu> {
       ),
       body:
         SingleChildScrollView(
-          child: Column(
-          children: [
-            // Mostra os itens selecionados
-            const Text('Select the user:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ListView.builder(
-              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
-              primary: false,
-              itemCount: _userList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_userList[index]['name']),
-                  trailing: Checkbox(
-                    value: _userChecked[index], // Usa a lista 'checked' para o estado
-                    onChanged: (bool? value) {
-                      _updateUserSelection(index, value!);
-                    },
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+            children: [
+              // Mostra os itens selecionados
+              const Text('Select the user:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ListView.builder(
+                shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+                primary: false,
+                itemCount: _userList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_userList[index]['name']),
+                    trailing: Checkbox(
+                      value: _userChecked[index], // Usa a lista 'checked' para o estado
+                      onChanged: (bool? value) {
+                        _updateUserSelection(index, value!);
+                      },
+                    ),
+                  );
+                },
+              ),
+              const Text('Select 3 breakfast options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ListView.builder(
+                shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+                primary: false,
+                itemCount: _breakfastList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_breakfastList[index]['name']),
+                    trailing: Checkbox(
+                      value: _breakfastChecked[index], // Usa a lista 'checked' para o estado
+                      onChanged: (bool? value) {
+                        _updateBreakfastSelection(index, value!);
+                      },
+                    ),
+                  );
+                },
+              ),
+              const Text('Select 5 lunch options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ListView.builder(
+                shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+                primary: false,
+                itemCount: _lunchList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_lunchList[index]['name']),
+                    trailing: Checkbox(
+                      value: _lunchChecked[index], // Usa a lista 'checked' para o estado
+                      onChanged: (bool? value) {
+                        _updateLunchSelection(index, value!);
+                      },
+                    ),
+                  );
+                },
+              ),
+              const Text('Select 4 dinner options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ListView.builder(
+                shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
+                primary: false,
+                itemCount: _dinnerList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_dinnerList[index]['name']),
+                    trailing: Checkbox(
+                      value: _dinnerChecked[index], // Usa a lista 'checked' para o estado
+                      onChanged: (bool? value) {
+                        _updateDinnerSelection(index, value!);
+                      },
+                    ),
+                  );
+                },
+              ),
+              ElevatedButton(onPressed: () {
+                _saveMenu();
+              }, child: const Text('Sing up')),
+              const SizedBox(height: 100,)
+            ],
                   ),
-                );
-              },
-            ),
-            const Text('Select 3 breakfast options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ListView.builder(
-              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
-              primary: false,
-              itemCount: _breakfastList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_breakfastList[index]['name']),
-                  trailing: Checkbox(
-                    value: _breakfastChecked[index], // Usa a lista 'checked' para o estado
-                    onChanged: (bool? value) {
-                      _updateBreakfastSelection(index, value!);
-                    },
-                  ),
-                );
-              },
-            ),
-            const Text('Select 5 lunch options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ListView.builder(
-              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
-              primary: false,
-              itemCount: _lunchList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_lunchList[index]['name']),
-                  trailing: Checkbox(
-                    value: _lunchChecked[index], // Usa a lista 'checked' para o estado
-                    onChanged: (bool? value) {
-                      _updateLunchSelection(index, value!);
-                    },
-                  ),
-                );
-              },
-            ),
-            const Text('Select 4 dinner options:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ListView.builder(
-              shrinkWrap: true,  // Impede a ListView de tomar espaço de maneira infinita
-              primary: false,
-              itemCount: _dinnerList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_dinnerList[index]['name']),
-                  trailing: Checkbox(
-                    value: _dinnerChecked[index], // Usa a lista 'checked' para o estado
-                    onChanged: (bool? value) {
-                      _updateDinnerSelection(index, value!);
-                    },
-                  ),
-                );
-              },
-            ),
-            ElevatedButton(onPressed: () {
-              _saveMenu();
-            }, child: const Text('Sing up')),
-            const SizedBox(height: 100,)
-          ],
-                ),
+          ),
         ),
     );
   }
